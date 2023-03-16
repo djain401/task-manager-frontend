@@ -50,8 +50,7 @@ const TaskCard = ({ task, index, deleteTask, showUpdateModal }) => {
           </MDBBadge>
         </td>
         <td>
-          <MDBIcon
-            icon="circle"
+          <MDBBadge
             color={
               task.priorityLevel === 1
                 ? "danger"
@@ -60,26 +59,47 @@ const TaskCard = ({ task, index, deleteTask, showUpdateModal }) => {
                 : "success"
             }
             size="sm"
-          ></MDBIcon>
+          >
+            {task.priorityLevel}
+          </MDBBadge>
         </td>
         <td>
-          <MDBBtn
+          {/* <MDBBtn
             color="danger"
             rounded
             size="sm"
             onClick={() => deleteTask(task._id)}
           >
             Delete
-          </MDBBtn>
+          </MDBBtn> */}
+          <MDBIcon
+            far
+            icon="edit"
+            onClick={() => showUpdateModal(task._id)}
+            style={{ cursor: "pointer" }}
+            size="lg"
+            className="ms-1"
+            color="primary"
+          />
+          <MDBIcon
+            far
+            icon="trash-alt"
+            onClick={() => deleteTask(task._id)}
+            style={{ cursor: "pointer" }}
+            color="danger"
+            size="lg"
+            className="ms-1"
+          />
 
-          <MDBBtn
+          {/* <MDBBtn
             color="link"
             rounded
             size="sm"
             onClick={() => showUpdateModal(task._id)}
+            className="ms-1"
           >
             Edit
-          </MDBBtn>
+          </MDBBtn> */}
         </td>
       </tr>
     </>

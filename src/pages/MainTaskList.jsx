@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import TasksNavBar from "../components/auth/TasksNavBar";
 import axios from "axios";
 import TaskCard from "../components/TaskCard";
-import { MDBTable, MDBTableHead, MDBTableBody } from "mdb-react-ui-kit";
+import {
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+  MDBContainer,
+} from "mdb-react-ui-kit";
 import UpdateTaskFormModal from "../components/UpdateTaskFormModal";
 
 const MainTaskList = () => {
@@ -72,38 +77,40 @@ const MainTaskList = () => {
   return (
     <>
       <TasksNavBar />
-      <MDBTable align="middle">
-        <MDBTableHead className="table-light">
-          <tr>
-            <th scope="col">Task</th>
-            <th scope="col">Due By</th>
-            <th scope="col">Owner</th>
-            <th scope="col">Status</th>
-            <th scope="col">Priority</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </MDBTableHead>
-        <MDBTableBody>
-          {showEmpty && <p>Your List is Empty ¯\_(ツ)_/¯</p>}
-          {showItems &&
-            tasks.map((task, index) => (
-              <TaskCard
-                index={index}
-                task={task}
-                deleteTask={deleteTask}
-                showUpdateModal={showUpdateModal}
-              />
-            ))}
-        </MDBTableBody>
-      </MDBTable>
+      <MDBContainer>
+        <MDBTable align="middle">
+          <MDBTableHead className="table-info">
+            <tr>
+              <th scope="col">Task</th>
+              <th scope="col">Due By</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Status</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </MDBTableHead>
+          <MDBTableBody>
+            {showEmpty && <p>Your List is Empty ¯\_(ツ)_/¯</p>}
+            {showItems &&
+              tasks.map((task, index) => (
+                <TaskCard
+                  index={index}
+                  task={task}
+                  deleteTask={deleteTask}
+                  showUpdateModal={showUpdateModal}
+                />
+              ))}
+          </MDBTableBody>
+        </MDBTable>
 
-      <UpdateTaskFormModal
-        showUpdateModalStatus={showUpdateModalStatus}
-        handleCloseUpdate={handleCloseUpdate}
-        index={index}
-        chosenTask={chosenTask}
-        updateTask={updateTask}
-      />
+        <UpdateTaskFormModal
+          showUpdateModalStatus={showUpdateModalStatus}
+          handleCloseUpdate={handleCloseUpdate}
+          index={index}
+          chosenTask={chosenTask}
+          updateTask={updateTask}
+        />
+      </MDBContainer>
     </>
   );
 };

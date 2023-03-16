@@ -1,42 +1,43 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import TasksNavBar from "../components/auth/TasksNavBar";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
-
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
+import { useFormik } from "formik";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
+import taskValidationSchema from "../components/ValidationSchema/taskValidationSchema";
 
 const CreateTask = () => {
   const user = useContext(UserContext);
-  const addTask = async (e) => {
-    e.preventDefault();
-    const taskData = {
-      taskName: e.target.taskName.value.replace(
-        /^./,
-        e.target.taskName.value[0].toUpperCase()
-      ),
-      dueDate: e.target.dueDate.value,
-      status: e.target.status.value,
-      priorityLevel: e.target.priorityLevel.value,
-      assignedUser: e.target.assignedUser.value,
-      description: e.target.description.value.replace(
-        /^./,
-        e.target.description.value[0].toUpperCase()
-      ),
-    };
+  const [message, setMessage] = useState("");
 
+  const onSubmit = async (values, actions) => {
     try {
-      const results = await axios.post("http://localhost:3001/task", taskData);
-      console.log(results.data);
-      e.target.reset();
+      await axios.post("http://localhost:3001/task", values);
+      setMessage("Task has been successfully added!");
     } catch (error) {
       console.error(error);
     }
   };
+
+  const { values, errors, handleChange, handleSubmit } = useFormik({
+    initialValues: {
+      taskName: "",
+      dueDate: new Date().toISOString().slice(0, 20),
+      status: "New",
+      priorityLevel: 3,
+      assignedUser: user.name,
+      description: "",
+    },
+    validationSchema: taskValidationSchema,
+    onSubmit,
+  });
+
   return (
     <div>
       <TasksNavBar />
+      <br />
       <Container>
-        <Form onSubmit={addTask}>
+        <Form onSubmit={handleSubmit} autoComplete="off">
           <Form.Group as={Row} className="mb-3">
             <Form.Label column sm={2}>
               Task Name
@@ -46,6 +47,9 @@ const CreateTask = () => {
                 type="text"
                 placeholder="Short Description"
                 name="taskName"
+                error={errors?.taskName}
+                onChange={handleChange}
+                defaultValue={values?.taskName}
                 required
               />
             </Col>
@@ -60,6 +64,8 @@ const CreateTask = () => {
                 type="datetime-local"
                 placeholder="Due date"
                 name="dueDate"
+                error={errors.dueDate}
+                onChange={handleChange}
                 required
               />
             </Col>
@@ -70,7 +76,12 @@ const CreateTask = () => {
               Status
             </Form.Label>
             <Col sm={3}>
-              <Form.Select name="status">
+              <Form.Select
+                name="status"
+                error={errors.status}
+                onChange={handleChange}
+                defaultValue={values.status}
+              >
                 <option>New</option>
                 <option>In-Progress</option>
                 <option>Completed</option>
@@ -83,7 +94,12 @@ const CreateTask = () => {
               Priority
             </Form.Label>
             <Col sm={3}>
-              <Form.Select name="priorityLevel">
+              <Form.Select
+                name="priorityLevel"
+                error={errors.priorityLevel}
+                onChange={handleChange}
+                defaultValue={values.priorityLevel}
+              >
                 <option>3</option>
                 <option>2</option>
                 <option>1</option>
@@ -99,7 +115,9 @@ const CreateTask = () => {
               <Form.Control
                 type="text"
                 name="assignedUser"
-                defaultValue={user.name}
+                defaultValue={values.assignedUser}
+                error={errors.assignedUser}
+                onChange={handleChange}
               />
             </Col>
           </Form.Group>
@@ -108,13 +126,32 @@ const CreateTask = () => {
               Description
             </Form.Label>
             <Col sm={3}>
-              <Form.Control as="textarea" name="description" />
+              <Form.Control
+                as="textarea"
+                name="description"
+                defaultValue={values.description}
+                error={errors.description}
+                onChange={handleChange}
+              />
             </Col>
           </Form.Group>
-          <Button variant="primary" type="submit">
+          <Button variant="info" type="submit">
             Add
           </Button>
         </Form>
+        <div>
+          <br />
+          {message && (
+            <Alert
+              key="success"
+              variant="success"
+              dismissible
+              onClose={() => setMessage("")}
+            >
+              {message}
+            </Alert>
+          )}
+        </div>
       </Container>
     </div>
   );
