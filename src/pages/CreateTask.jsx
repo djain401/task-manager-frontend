@@ -1,18 +1,22 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import TasksNavBar from "../components/auth/TasksNavBar";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import { useFormik } from "formik";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import taskValidationSchema from "../components/ValidationSchema/taskValidationSchema";
+import { DateTime } from "luxon";
 
 const CreateTask = () => {
   const user = useContext(UserContext);
   const [message, setMessage] = useState("");
+  const [userSelect, setUserSelect] = useState([]);
 
   const onSubmit = async (values, actions) => {
     try {
       await axios.post("http://localhost:3001/task", values);
+      actions.setSubmitting(false);
+      actions.resetForm();
       setMessage("Task has been successfully added!");
     } catch (error) {
       console.error(error);
@@ -22,7 +26,7 @@ const CreateTask = () => {
   const { values, errors, handleChange, handleSubmit } = useFormik({
     initialValues: {
       taskName: "",
-      dueDate: new Date().toISOString().slice(0, 20),
+      dueDate: new Date().toISOString(),
       status: "New",
       priorityLevel: 3,
       assignedUser: user.name,
@@ -31,6 +35,21 @@ const CreateTask = () => {
     validationSchema: taskValidationSchema,
     onSubmit,
   });
+
+  useEffect(() => {
+    try {
+      const getUsers = async () => {
+        const result = await axios.get("http://localhost:3001/users");
+        if (result.data.length > 0) {
+          console.log(result.data);
+          setUserSelect(result.data);
+        }
+      };
+      getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   return (
     <div>
@@ -49,7 +68,7 @@ const CreateTask = () => {
                 name="taskName"
                 error={errors?.taskName}
                 onChange={handleChange}
-                defaultValue={values?.taskName}
+                value={values?.taskName}
                 required
               />
             </Col>
@@ -66,6 +85,9 @@ const CreateTask = () => {
                 name="dueDate"
                 error={errors.dueDate}
                 onChange={handleChange}
+                value={DateTime.fromISO(values.dueDate).toFormat(
+                  "yyyy-MM-dd'T'HH:mm"
+                )}
                 required
               />
             </Col>
@@ -80,7 +102,7 @@ const CreateTask = () => {
                 name="status"
                 error={errors.status}
                 onChange={handleChange}
-                defaultValue={values.status}
+                value={values.status}
               >
                 <option>New</option>
                 <option>In-Progress</option>
@@ -98,7 +120,7 @@ const CreateTask = () => {
                 name="priorityLevel"
                 error={errors.priorityLevel}
                 onChange={handleChange}
-                defaultValue={values.priorityLevel}
+                value={values.priorityLevel}
               >
                 <option>3</option>
                 <option>2</option>
@@ -112,13 +134,16 @@ const CreateTask = () => {
               Assigned to
             </Form.Label>
             <Col sm={3}>
-              <Form.Control
-                type="text"
+              <Form.Select
                 name="assignedUser"
-                defaultValue={values.assignedUser}
+                value={values.assignedUser}
                 error={errors.assignedUser}
                 onChange={handleChange}
-              />
+              >
+                {userSelect.map((user) => {
+                  return <option>{user.userName}</option>;
+                })}
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row} className="mb-3">
@@ -129,7 +154,7 @@ const CreateTask = () => {
               <Form.Control
                 as="textarea"
                 name="description"
-                defaultValue={values.description}
+                value={values.description}
                 error={errors.description}
                 onChange={handleChange}
               />

@@ -77,6 +77,7 @@ const MainTaskList = () => {
   return (
     <>
       <TasksNavBar />
+
       <MDBContainer>
         <MDBTable align="middle">
           <MDBTableHead className="table-info">

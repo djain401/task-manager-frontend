@@ -1,7 +1,11 @@
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { DateTime } from "luxon";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const UpdateForm = ({ chosenTask, index, updateTask }) => {
+  const [userSelect, setUserSelect] = useState([]);
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     const taskData = {
@@ -20,6 +24,21 @@ const UpdateForm = ({ chosenTask, index, updateTask }) => {
     };
     updateTask(taskData, index);
   };
+
+  useEffect(() => {
+    try {
+      const getUsers = async () => {
+        const result = await axios.get("http://localhost:3001/users");
+        if (result.data.length > 0) {
+          console.log(result.data);
+          setUserSelect(result.data);
+        }
+      };
+      getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   return (
     <>
@@ -86,11 +105,22 @@ const UpdateForm = ({ chosenTask, index, updateTask }) => {
             Assigned to
           </Form.Label>
           <Col>
-            <Form.Control
+            <Form.Select
               type="text"
               name="assignedUser"
               defaultValue={chosenTask.assignedUser}
-            />
+            >
+              <option>{chosenTask.assignedUser}</option>
+              {userSelect.map((user) => {
+                return (
+                  <option>
+                    {chosenTask.assignedUser !== user.userName
+                      ? user.userName
+                      : false}
+                  </option>
+                );
+              })}
+            </Form.Select>
           </Col>
         </Form.Group>
         <Form.Group as={Row} className="mb-3">

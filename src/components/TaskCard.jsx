@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   MDBBadge,
-  MDBBtn,
   MDBAccordion,
   MDBAccordionItem,
-  MDBIcon,
+  MDBBtn,
 } from "mdb-react-ui-kit";
 import { DateTime } from "luxon";
+import { UserContext } from "../contexts/UserContext";
 
 const TaskCard = ({ task, index, deleteTask, showUpdateModal }) => {
+  const user = useContext(UserContext);
   const dt = DateTime.fromISO(task.dueDate).toLocaleString(
     DateTime.DATETIME_MED
   );
@@ -16,7 +17,13 @@ const TaskCard = ({ task, index, deleteTask, showUpdateModal }) => {
   return (
     <>
       <tr
-        className={task.dueDate < DateTime.now().toISO() ? "table-danger" : ""}
+        className={
+          task.status === "Completed"
+            ? ""
+            : task.dueDate < DateTime.now().toISO()
+            ? "table-danger"
+            : ""
+        }
         key={task._id}
       >
         <td>
@@ -64,42 +71,28 @@ const TaskCard = ({ task, index, deleteTask, showUpdateModal }) => {
           </MDBBadge>
         </td>
         <td>
-          {/* <MDBBtn
-            color="danger"
-            rounded
-            size="sm"
+          <MDBBtn
             onClick={() => deleteTask(task._id)}
+            style={{ cursor: "pointer" }}
+            color="danger"
+            size="sm"
+            className="ms-1"
+            rounded
+            disabled={task.assignedUser === user.name ? false : true}
           >
             Delete
-          </MDBBtn> */}
-          <MDBIcon
-            far
-            icon="edit"
-            onClick={() => showUpdateModal(task._id)}
-            style={{ cursor: "pointer" }}
-            size="lg"
-            className="ms-1"
-            color="primary"
-          />
-          <MDBIcon
-            far
-            icon="trash-alt"
-            onClick={() => deleteTask(task._id)}
-            style={{ cursor: "pointer" }}
-            color="danger"
-            size="lg"
-            className="ms-1"
-          />
+          </MDBBtn>
 
-          {/* <MDBBtn
+          <MDBBtn
             color="link"
             rounded
             size="sm"
             onClick={() => showUpdateModal(task._id)}
             className="ms-1"
+            disabled={task.assignedUser === user.name ? false : true}
           >
             Edit
-          </MDBBtn> */}
+          </MDBBtn>
         </td>
       </tr>
     </>
